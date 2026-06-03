@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<!-- PRIMARY SEO -->
+<title>Sanctions &amp; Exclusion Screening API (OFAC, LEIE) | ClearScreen</title>
+<meta name="description" content="ClearScreen screens any person or company against 12 US federal & state sanctions and exclusion lists (OFAC, OIG LEIE, SAM.gov, Medicaid) in one API call.">
+<meta name="keywords" content="sanctions screening, exclusion screening, OFAC screening, denied party screening, OIG LEIE, SAM.gov debarment, Medicaid exclusion, AML, KYC, KYB, watchlist screening, MCP server">
+
+<!-- CANONICAL: placeholder GitHub Pages URL — update to a custom domain (e.g. https://clearscreen.dev/) when one is configured -->
+<link rel="canonical" href="https://lvsmanhole.github.io/clearscreen-data/">
+
+<!-- OPEN GRAPH -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="ClearScreen — Sanctions &amp; Exclusion Screening API (OFAC, LEIE, SAM)">
+<meta property="og:description" content="Screen any person or company against 12 US federal and state exclusion and sanctions lists (292,000+ records) in one API call, with fuzzy name matching and confidence scores.">
+<meta property="og:url" content="https://lvsmanhole.github.io/clearscreen-data/">
+<meta property="og:site_name" content="ClearScreen">
+
+<!-- TWITTER CARD -->
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="ClearScreen — Sanctions &amp; Exclusion Screening API (OFAC, LEIE, SAM)">
+<meta name="twitter:description" content="Screen any person or company against 12 US federal and state exclusion and sanctions lists in one API call, with fuzzy matching and confidence scores.">
+
+<style>
+:root{
+  --navy:#0f2540;
+  --navy-2:#16335a;
+  --slate:#1f3a5f;
+  --accent:#2f7fd4;
+  --accent-d:#1b5fa8;
+  --ink:#16202e;
+  --body:#33414f;
+  --muted:#5d6b7a;
+  --line:#dde4ec;
+  --bg:#ffffff;
+  --bg-soft:#f4f7fb;
+  --bg-tint:#eef3f9;
+  --ok:#0f7a52;
+  --radius:10px;
+  --maxw:1080px;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{
+  margin:0;
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  color:var(--body);
+  background:var(--bg);
+  line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+  font-size:17px;
+}
+.wrap{max-width:var(--maxw);margin:0 auto;padding:0 20px}
+a{color:var(--accent-d);text-decoration:none}
+a:hover{text-decoration:underline}
+h1,h2,h3{color:var(--ink);line-height:1.25;margin:0 0 .5em}
+h1{font-size:2.25rem;letter-spacing:-.5px}
+h2{font-size:1.65rem;letter-spacing:-.3px}
+h3{font-size:1.12rem}
+p{margin:0 0 1em}
+code,kbd{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.92em}
+
+/* HEADER */
+.site-head{
+  border-bottom:1px solid var(--line);
+  background:rgba(255,255,255,.92);
+  backdrop-filter:saturate(180%) blur(6px);
+  position:sticky;top:0;z-index:20;
+}
+.site-head .wrap{display:flex;align-items:center;justify-content:space-between;height:62px}
+.brand{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--ink);font-size:1.12rem}
+.brand:hover{text-decoration:none}
+.logo{width:26px;height:26px;flex:none}
+.nav a{margin-left:22px;color:var(--slate);font-weight:500;font-size:.95rem}
+.nav{display:none}
+@media(min-width:760px){.nav{display:block}}
+
+/* BUTTONS */
+.btn{
+  display:inline-block;padding:11px 20px;border-radius:8px;font-weight:600;font-size:.97rem;
+  border:1px solid transparent;cursor:pointer;transition:background .15s,border-color .15s;
+}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-d);text-decoration:none}
+.btn-ghost{background:#fff;color:var(--navy);border-color:var(--line)}
+.btn-ghost:hover{border-color:var(--accent);text-decoration:none}
+
+/* HERO */
+.hero{
+  background:linear-gradient(170deg,var(--navy) 0%,var(--navy-2) 55%,var(--slate) 100%);
+  color:#e8eef6;padding:64px 0 56px;
+}
+.hero .eyebrow{
+  display:inline-block;font-size:.78rem;font-weight:700;letter-spacing:.8px;text-transform:uppercase;
+  color:#9fc4ec;background:rgba(47,127,212,.16);border:1px solid rgba(47,127,212,.4);
+  padding:5px 12px;border-radius:999px;margin-bottom:18px;
+}
+.hero h1{color:#fff;max-width:18ch}
+.hero .lede{font-size:1.18rem;color:#c7d6e8;max-width:60ch;margin-bottom:22px}
+.hero .cta-row{display:flex;flex-wrap:wrap;gap:12px;margin-bottom:30px}
+.endpoint{
+  display:flex;flex-wrap:wrap;align-items:center;gap:8px;
+  background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.16);
+  border-radius:var(--radius);padding:12px 14px;max-width:560px;
+}
+.endpoint .lbl{font-size:.74rem;letter-spacing:.6px;text-transform:uppercase;color:#9fc4ec;font-weight:700}
+.endpoint code{color:#fff;font-size:.98rem;word-break:break-all}
+.stat-row{display:flex;flex-wrap:wrap;gap:26px;margin-top:30px}
+.stat .n{font-size:1.5rem;font-weight:700;color:#fff;line-height:1.1}
+.stat .l{font-size:.85rem;color:#a9bdd6}
+
+/* SECTIONS */
+section{padding:56px 0;border-bottom:1px solid var(--line)}
+.section-soft{background:var(--bg-soft)}
+.lead-def{
+  font-size:1.22rem;color:var(--ink);max-width:70ch;margin:0 auto;text-align:center;font-weight:500;
+}
+.kicker{font-size:.8rem;font-weight:700;letter-spacing:1px;text-transform:uppercase;color:var(--accent-d);margin-bottom:8px}
+.section-head{max-width:64ch;margin-bottom:32px}
+.section-head.center{margin-left:auto;margin-right:auto;text-align:center}
+
+/* LIST GRID (12 sources) */
+.src-group{margin-bottom:26px}
+.src-group h3{margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.tag{font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;padding:3px 9px;border-radius:999px}
+.tag-fed{background:#e3f0fb;color:var(--accent-d)}
+.tag-state{background:#e7f4ec;color:var(--ok)}
+.cards{display:grid;grid-template-columns:1fr;gap:12px}
+@media(min-width:560px){.cards{grid-template-columns:1fr 1fr}}
+@media(min-width:880px){.cards.c3{grid-template-columns:1fr 1fr 1fr}}
+.card{
+  background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:14px 16px;
+}
+.section-soft .card{background:#fff}
+.card .name{font-weight:700;color:var(--ink)}
+.card .desc{font-size:.9rem;color:var(--muted);margin:0}
+
+/* FEATURES */
+.features{display:grid;grid-template-columns:1fr;gap:18px}
+@media(min-width:620px){.features{grid-template-columns:1fr 1fr}}
+@media(min-width:920px){.features{grid-template-columns:1fr 1fr 1fr}}
+.feature{padding:20px;border:1px solid var(--line);border-radius:var(--radius);background:#fff}
+.feature h3{margin-bottom:6px}
+.feature p{margin:0;font-size:.96rem;color:var(--body)}
+.ficon{width:34px;height:34px;border-radius:8px;background:var(--bg-tint);display:flex;align-items:center;justify-content:center;margin-bottom:12px;color:var(--accent-d)}
+
+/* USE CASES */
+.uses{display:grid;grid-template-columns:1fr;gap:10px}
+@media(min-width:620px){.uses{grid-template-columns:1fr 1fr}}
+.use{display:flex;gap:12px;align-items:flex-start;padding:14px 16px;background:#fff;border:1px solid var(--line);border-radius:var(--radius)}
+.use .dot{color:var(--accent);font-weight:700;flex:none;margin-top:1px}
+.use b{color:var(--ink)}
+.use span{color:var(--muted);font-size:.93rem}
+
+/* HOW TO CONNECT */
+.connect-grid{display:grid;grid-template-columns:1fr;gap:24px}
+@media(min-width:820px){.connect-grid{grid-template-columns:1.1fr .9fr}}
+pre.code{
+  background:#0d1b2e;color:#dbe7f5;border-radius:var(--radius);padding:18px;overflow-x:auto;
+  font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:.86rem;line-height:1.55;margin:0;
+}
+pre.code .k{color:#7fc2ff}
+pre.code .s{color:#a5d6a7}
+.tools-list{list-style:none;margin:0;padding:0}
+.tools-list li{padding:12px 0;border-bottom:1px solid var(--line)}
+.tools-list li:last-child{border-bottom:0}
+.tools-list code{background:var(--bg-tint);color:var(--accent-d);padding:2px 8px;border-radius:6px;font-weight:600}
+.tools-list .d{display:block;font-size:.9rem;color:var(--muted);margin-top:3px}
+
+/* PRICING */
+.prices{display:grid;grid-template-columns:1fr;gap:18px}
+@media(min-width:760px){.prices{grid-template-columns:1fr 1fr 1fr}}
+.price{border:1px solid var(--line);border-radius:var(--radius);padding:24px;background:#fff;display:flex;flex-direction:column}
+.price.feat{border-color:var(--accent);box-shadow:0 6px 24px rgba(47,127,212,.12)}
+.price .pname{font-weight:700;color:var(--ink);font-size:1.1rem}
+.price .amt{font-size:1.9rem;font-weight:800;color:var(--ink);margin:10px 0 2px;letter-spacing:-1px}
+.price .amt small{font-size:.85rem;font-weight:500;color:var(--muted)}
+.price ul{list-style:none;margin:14px 0 18px;padding:0;font-size:.94rem}
+.price li{padding:5px 0 5px 22px;position:relative;color:var(--body)}
+.price li:before{content:"✓";position:absolute;left:0;color:var(--ok);font-weight:700}
+.price .badge{display:inline-block;font-size:.7rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--accent-d);background:#e3f0fb;padding:3px 9px;border-radius:999px;margin-bottom:4px;align-self:flex-start}
+.price .btn{margin-top:auto}
+
+/* FAQ */
+.faq details{
+  border:1px solid var(--line);border-radius:var(--radius);margin-bottom:12px;background:#fff;overflow:hidden;
+}
+.faq summary{
+  cursor:pointer;padding:16px 18px;font-weight:600;color:var(--ink);font-size:1.04rem;list-style:none;
+  display:flex;justify-content:space-between;align-items:center;gap:12px;
+}
+.faq summary::-webkit-details-marker{display:none}
+.faq summary:after{content:"+";color:var(--accent);font-weight:700;font-size:1.3rem;flex:none}
+.faq details[open] summary:after{content:"–"}
+.faq .ans{padding:0 18px 18px;color:var(--body)}
+.faq .ans p{margin:0}
+
+/* DISCLAIMER */
+.disclaimer{
+  background:#fff7e8;border:1px solid #f0dca6;border-radius:var(--radius);padding:18px 20px;
+  color:#5e4a18;font-size:.95rem;
+}
+.disclaimer b{color:#5e4a18}
+
+/* FOOTER */
+footer{background:var(--navy);color:#b9c8da;padding:46px 0 34px;border:0}
+footer .wrap{display:grid;grid-template-columns:1fr;gap:26px}
+@media(min-width:720px){footer .wrap{grid-template-columns:2fr 1fr 1fr}}
+footer h4{color:#fff;font-size:.85rem;letter-spacing:.6px;text-transform:uppercase;margin:0 0 12px}
+footer a{color:#c7d6e8;display:block;margin-bottom:8px;font-size:.95rem}
+footer .fbrand{display:flex;align-items:center;gap:10px;color:#fff;font-weight:700;font-size:1.1rem;margin-bottom:10px}
+footer .fnote{font-size:.9rem;color:#8fa3bb;max-width:42ch}
+.foot-legal{border-top:1px solid rgba(255,255,255,.12);margin-top:30px;padding-top:18px;font-size:.85rem;color:#8095ad}
+.foot-legal .disclaimer{margin-bottom:16px}
+.skip{position:absolute;left:-999px}
+.skip:focus{left:8px;top:8px;background:#fff;padding:8px 12px;border-radius:6px;z-index:50}
+</style>
+
+<!-- JSON-LD: SoftwareApplication -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "SoftwareApplication",
+  "name": "ClearScreen",
+  "applicationCategory": "BusinessApplication",
+  "applicationSubCategory": "Sanctions & Exclusion Screening API",
+  "operatingSystem": "Any (Model Context Protocol / HTTPS API)",
+  "url": "https://lvsmanhole.github.io/clearscreen-data/",
+  "description": "ClearScreen is a sanctions and exclusion screening API, delivered as a Model Context Protocol (MCP) server, that screens any person or company against 12 US federal and state exclusion and sanctions lists (292,000+ records) in one call, with fuzzy name and alias matching and confidence-scored candidate matches.",
+  "offers": [
+    {
+      "@type": "Offer",
+      "name": "Free",
+      "price": "0",
+      "priceCurrency": "USD",
+      "description": "50 screens per month"
+    },
+    {
+      "@type": "Offer",
+      "name": "Pay-as-you-go",
+      "price": "0.07",
+      "priceCurrency": "USD",
+      "description": "$0.07 per screen, no monthly commitment"
+    },
+    {
+      "@type": "Offer",
+      "name": "Pro",
+      "price": "39",
+      "priceCurrency": "USD",
+      "description": "$39 per month, includes 2,000 screens"
+    }
+  ],
+  "featureList": [
+    "Screens against OFAC SDN, OIG LEIE, and SAM.gov",
+    "Screens 9 state Medicaid exclusion lists",
+    "Fuzzy name and alias matching",
+    "Confidence-scored candidate matches",
+    "Source attribution and freshness timestamps",
+    "Daily auto-refreshed data",
+    "Bulk batch and monthly re-screening"
+  ]
+}
+</script>
+
+<!-- JSON-LD: FAQPage -->
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FAQPage",
+  "mainEntity": [
+    {
+      "@type": "Question",
+      "name": "What is ClearScreen?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ClearScreen is a sanctions and exclusion screening API, delivered as an MCP (Model Context Protocol) server, that screens any person or company against 12 US federal and state exclusion and sanctions lists in one call. It returns ranked candidate matches with confidence scores, source attribution, and freshness timestamps."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Which lists does ClearScreen screen against?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ClearScreen screens against 12 lists totaling 292,000+ records: three federal lists (OFAC SDN, OIG LEIE, and SAM.gov debarments) and nine state Medicaid exclusion lists (New York, Pennsylvania, Arkansas, Maryland, South Carolina, Missouri, Indiana, Mississippi, and Georgia)."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "What is the difference between ClearScreen and OFAC's own search?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "OFAC's Sanctions List Search only covers OFAC's own lists. ClearScreen checks OFAC plus 11 additional federal and state exclusion lists in a single call, adds fuzzy name and alias matching, returns ranked confidence scores instead of a naked yes/no, and attaches source attribution and freshness timestamps for an audit trail."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Does ClearScreen do fuzzy or alias matching?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. ClearScreen uses fuzzy name and alias matching to catch misspellings, aliases, and transliterations, and it returns a ranked list of candidate matches with confidence scores rather than a single exact-match yes or no."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "How do I connect ClearScreen to Claude or an AI agent?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ClearScreen is an MCP server, so any MCP-compatible client (such as Claude) can connect by adding the endpoint https://clearscreen-mcp.mcpize.run/mcp. The agent can then call the screen_person, screen_entity, batch_screen, and get_list_status tools."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is ClearScreen free?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "ClearScreen has a free tier of 50 screens per month. Beyond that it offers pay-as-you-go pricing at $0.07 per screen, and a Pro plan at $39 per month that includes 2,000 screens."
+      }
+    },
+    {
+      "@type": "Question",
+      "name": "Is ClearScreen legal advice?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "No. ClearScreen is a screening aid built from public federal and state data, not legal advice or a compliance determination. Users must confirm any potential match at the authoritative source before acting on it."
+      }
+    }
+  ]
+}
+</script>
+</head>
+
+<body>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="site-head">
+  <div class="wrap">
+    <a class="brand" href="#top">
+      <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path fill="#2f7fd4" d="M16 2 4 7v8c0 7 5 12 12 15 7-3 12-8 12-15V7L16 2z"/><path fill="#fff" d="m14.3 19.4-3.5-3.5 1.8-1.8 1.7 1.7 5-5 1.8 1.8-6.8 6.8z"/></svg>
+      ClearScreen
+    </a>
+    <nav class="nav" aria-label="Primary">
+      <a href="#screens">What it screens</a>
+      <a href="#features">Features</a>
+      <a href="#connect">Connect</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </nav>
+    <a class="btn btn-primary" href="https://mcpize.com/mcp/clearscreen-mcp" style="padding:8px 16px">Get started</a>
+  </div>
+</header>
+
+<a id="top"></a>
+
+<!-- HERO -->
+<section class="hero" style="border:0">
+  <div class="wrap">
+    <span class="eyebrow">Sanctions &amp; Exclusion Screening · MCP Server</span>
+    <h1>Screen any name against 12 US sanctions &amp; exclusion lists in one call</h1>
+    <p class="lede">ClearScreen is a compliance screening API and MCP server that checks any person or company against federal and state sanctions and exclusion lists, returning ranked, confidence-scored matches with a full audit trail.</p>
+    <div class="cta-row">
+      <a class="btn btn-primary" href="https://mcpize.com/mcp/clearscreen-mcp">View on marketplace</a>
+      <a class="btn btn-ghost" href="#connect">Connect an AI agent</a>
+    </div>
+    <div class="endpoint">
+      <span class="lbl">MCP endpoint</span>
+      <code>https://clearscreen-mcp.mcpize.run/mcp</code>
+    </div>
+    <div class="stat-row">
+      <div class="stat"><div class="n">12</div><div class="l">federal &amp; state lists</div></div>
+      <div class="stat"><div class="n">292,000+</div><div class="l">screened records</div></div>
+      <div class="stat"><div class="n">~1 sec</div><div class="l">per screen</div></div>
+      <div class="stat"><div class="n">Daily</div><div class="l">auto-refresh</div></div>
+    </div>
+  </div>
+</section>
+
+<main id="main">
+
+<!-- LEAD DEFINITION (AEO) -->
+<section class="section-soft">
+  <div class="wrap">
+    <p class="lead-def">ClearScreen is a sanctions &amp; exclusion screening API and MCP server that screens any person or company against 12 US federal and state lists &mdash; 292,000+ records &mdash; in a single call, returning ranked candidate matches with confidence scores, source attribution, and freshness timestamps.</p>
+  </div>
+</section>
+
+<!-- WHAT IT SCREENS -->
+<section id="screens">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Coverage</div>
+      <h2>What ClearScreen screens against</h2>
+      <p>One call checks all 12 sources below — 3 US federal lists plus 9 state Medicaid exclusion lists, together holding more than 292,000 records.</p>
+    </div>
+
+    <div class="src-group">
+      <h3>Federal lists <span class="tag tag-fed">3 federal</span></h3>
+      <div class="cards c3">
+        <div class="card"><div class="name">OFAC SDN</div><p class="desc">US Treasury Specially Designated Nationals &amp; Blocked Persons (sanctions).</p></div>
+        <div class="card"><div class="name">OIG LEIE</div><p class="desc">HHS Office of Inspector General — List of Excluded Individuals/Entities (healthcare).</p></div>
+        <div class="card"><div class="name">SAM.gov</div><p class="desc">System for Award Management — federal debarments and exclusions.</p></div>
+      </div>
+    </div>
+
+    <div class="src-group">
+      <h3>State Medicaid exclusion lists <span class="tag tag-state">9 states</span></h3>
+      <div class="cards c3">
+        <div class="card"><div class="name">New York</div><p class="desc">NY Medicaid exclusions.</p></div>
+        <div class="card"><div class="name">Pennsylvania</div><p class="desc">PA Medicaid exclusions.</p></div>
+        <div class="card"><div class="name">Arkansas</div><p class="desc">AR Medicaid exclusions.</p></div>
+        <div class="card"><div class="name">Maryland</div><p class="desc">MD Medicaid exclusions.</p></div>
+        <div class="card"><div class="name">South Carolina</div><p class="desc">SC Medicaid exclusions.</p></div>
+        <div class="card"><div class="name">Missouri</div><p class="desc">MO Medicaid exclusions.</p></div>
+        <div class="card"><div class="name">Indiana</div><p class="desc">IN Medicaid exclusions.</p></div>
+        <div class="card"><div class="name">Mississippi</div><p class="desc">MS Medicaid exclusions.</p></div>
+        <div class="card"><div class="name">Georgia</div><p class="desc">GA Medicaid exclusions.</p></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section id="features" class="section-soft">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">How it works</div>
+      <h2>Built for compliance, not guesswork</h2>
+      <p>ClearScreen is designed to give compliance and risk teams defensible, auditable results — not a black-box yes or no.</p>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <div class="ficon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/></svg>
+        </div>
+        <h3>Fuzzy name &amp; alias matching</h3>
+        <p>Catches misspellings, aliases, and transliterations — not just exact string matches — so near-matches don't slip through.</p>
+      </div>
+      <div class="feature">
+        <div class="ficon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h4l3 8 4-16 3 8h4"/></svg>
+        </div>
+        <h3>Ranked confidence scores</h3>
+        <p>Returns a ranked list of candidate matches with confidence scores, so a reviewer can triage by likelihood instead of a naked yes/no.</p>
+      </div>
+      <div class="feature">
+        <div class="ficon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 15h6M9 11h2"/></svg>
+        </div>
+        <h3>Source attribution &amp; freshness</h3>
+        <p>Every result carries which list it came from and a freshness timestamp, giving you a defensible audit trail for each screen.</p>
+      </div>
+      <div class="feature">
+        <div class="ficon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>
+        </div>
+        <h3>Daily auto-refresh</h3>
+        <p>The underlying federal and state data is refreshed automatically every day, so you screen against current lists without manual updates.</p>
+      </div>
+      <div class="feature">
+        <div class="ficon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M13 2 3 14h7l-1 8 10-12h-7z"/></svg>
+        </div>
+        <h3>~1 second per screen</h3>
+        <p>All 12 lists are checked in a single call in roughly one second — fast enough for real-time onboarding and agent workflows.</p>
+      </div>
+      <div class="feature">
+        <div class="ficon" aria-hidden="true">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/></svg>
+        </div>
+        <h3>Agent-native (MCP)</h3>
+        <p>Delivered as an MCP server, so AI agents like Claude — and your own apps — can call it directly to check a name before acting.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- USE CASES -->
+<section id="usecases">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Use cases</div>
+      <h2>Where teams use ClearScreen</h2>
+    </div>
+    <div class="uses">
+      <div class="use"><span class="dot">&bull;</span><span><b>KYC / AML onboarding</b> — screen customers against sanctions and exclusion lists at signup.</span></div>
+      <div class="use"><span class="dot">&bull;</span><span><b>Vendor &amp; supplier due diligence</b> — check counterparties for debarments before contracting.</span></div>
+      <div class="use"><span class="dot">&bull;</span><span><b>Hiring &amp; healthcare credentialing</b> — verify staff and providers aren't on OIG/state exclusion lists.</span></div>
+      <div class="use"><span class="dot">&bull;</span><span><b>Marketplace trust &amp; safety</b> — vet sellers and partners as they join.</span></div>
+      <div class="use"><span class="dot">&bull;</span><span><b>Fintech &amp; crypto compliance</b> — denied-party and sanctions checks for high-risk flows.</span></div>
+      <div class="use"><span class="dot">&bull;</span><span><b>AI-agent workflows</b> — let an agent screen a name before it acts on a transaction or approval.</span></div>
+    </div>
+  </div>
+</section>
+
+<!-- HOW TO CONNECT -->
+<section id="connect" class="section-soft">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">How to use it</div>
+      <h2>Connect ClearScreen to Claude or your app</h2>
+      <p>ClearScreen is an MCP server. Point any MCP-compatible client at the endpoint below, then call its four tools.</p>
+    </div>
+    <div class="connect-grid">
+      <div>
+        <p style="margin:0 0 8px;font-weight:600;color:var(--ink)">MCP endpoint</p>
+        <pre class="code"><span class="s">https://clearscreen-mcp.mcpize.run/mcp</span></pre>
+        <p style="margin:18px 0 8px;font-weight:600;color:var(--ink)">Example client config</p>
+        <pre class="code">{
+  <span class="k">"mcpServers"</span>: {
+    <span class="k">"clearscreen"</span>: {
+      <span class="k">"url"</span>: <span class="s">"https://clearscreen-mcp.mcpize.run/mcp"</span>
+    }
+  }
+}</pre>
+        <p style="margin:14px 0 0;font-size:.92rem;color:var(--muted)">Or install from the <a href="https://mcpize.com/mcp/clearscreen-mcp">mcpize marketplace listing</a>.</p>
+      </div>
+      <div>
+        <p style="margin:0 0 8px;font-weight:600;color:var(--ink)">Four tools</p>
+        <ul class="tools-list">
+          <li><code>screen_person</code><span class="d">Screen an individual by name (and optional details) against all 12 lists.</span></li>
+          <li><code>screen_entity</code><span class="d">Screen a company or organization against all 12 lists.</span></li>
+          <li><code>batch_screen</code><span class="d">Bulk-screen many names at once — ideal for monthly re-screening.</span></li>
+          <li><code>get_list_status</code><span class="d">Check each list's last-refresh timestamp and record counts.</span></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- PRICING -->
+<section id="pricing">
+  <div class="wrap">
+    <div class="section-head center">
+      <div class="kicker">Pricing</div>
+      <h2>Simple, usage-based pricing</h2>
+      <p>Start free. Scale with pay-as-you-go or a flat monthly Pro plan.</p>
+    </div>
+    <div class="prices">
+      <div class="price">
+        <div class="pname">Free</div>
+        <div class="amt">$0<small> /mo</small></div>
+        <ul>
+          <li>50 screens per month</li>
+          <li>All 12 lists</li>
+          <li>Fuzzy matching &amp; confidence scores</li>
+        </ul>
+        <a class="btn btn-ghost" href="https://mcpize.com/mcp/clearscreen-mcp">Start free</a>
+      </div>
+      <div class="price feat">
+        <span class="badge">Most popular</span>
+        <div class="pname">Pro</div>
+        <div class="amt">$39<small> /mo</small></div>
+        <ul>
+          <li>2,000 screens per month</li>
+          <li>All 12 lists</li>
+          <li>Batch &amp; monthly re-screening</li>
+          <li>Audit trail on every result</li>
+        </ul>
+        <a class="btn btn-primary" href="https://mcpize.com/mcp/clearscreen-mcp">Choose Pro</a>
+      </div>
+      <div class="price">
+        <div class="pname">Pay-as-you-go</div>
+        <div class="amt">$0.07<small> /screen</small></div>
+        <ul>
+          <li>No monthly commitment</li>
+          <li>All 12 lists</li>
+          <li>Scales with usage</li>
+        </ul>
+        <a class="btn btn-ghost" href="https://mcpize.com/mcp/clearscreen-mcp">Use PAYG</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq" class="section-soft">
+  <div class="wrap">
+    <div class="section-head center">
+      <div class="kicker">FAQ</div>
+      <h2>Frequently asked questions</h2>
+    </div>
+    <div class="faq">
+      <details open>
+        <summary>What is ClearScreen?</summary>
+        <div class="ans"><p>ClearScreen is a sanctions and exclusion screening API, delivered as an MCP (Model Context Protocol) server, that screens any person or company against 12 US federal and state exclusion and sanctions lists in one call. It returns ranked candidate matches with confidence scores, source attribution, and freshness timestamps.</p></div>
+      </details>
+      <details>
+        <summary>Which lists does it screen against?</summary>
+        <div class="ans"><p>ClearScreen screens against 12 lists totaling 292,000+ records: three federal lists (OFAC SDN, OIG LEIE, and SAM.gov debarments) and nine state Medicaid exclusion lists (New York, Pennsylvania, Arkansas, Maryland, South Carolina, Missouri, Indiana, Mississippi, and Georgia).</p></div>
+      </details>
+      <details>
+        <summary>What's the difference vs OFAC's own search?</summary>
+        <div class="ans"><p>OFAC's Sanctions List Search only covers OFAC's own lists. ClearScreen checks OFAC plus 11 additional federal and state exclusion lists in a single call, adds fuzzy name and alias matching, returns ranked confidence scores instead of a naked yes/no, and attaches source attribution and freshness timestamps for an audit trail.</p></div>
+      </details>
+      <details>
+        <summary>Does it do fuzzy / alias matching?</summary>
+        <div class="ans"><p>Yes. ClearScreen uses fuzzy name and alias matching to catch misspellings, aliases, and transliterations, and it returns a ranked list of candidate matches with confidence scores rather than a single exact-match yes or no.</p></div>
+      </details>
+      <details>
+        <summary>How do I connect it to Claude / an AI agent?</summary>
+        <div class="ans"><p>ClearScreen is an MCP server, so any MCP-compatible client (such as Claude) can connect by adding the endpoint <code>https://clearscreen-mcp.mcpize.run/mcp</code>. The agent can then call the <code>screen_person</code>, <code>screen_entity</code>, <code>batch_screen</code>, and <code>get_list_status</code> tools.</p></div>
+      </details>
+      <details>
+        <summary>Is it free?</summary>
+        <div class="ans"><p>ClearScreen has a free tier of 50 screens per month. Beyond that it offers pay-as-you-go pricing at $0.07 per screen, and a Pro plan at $39 per month that includes 2,000 screens.</p></div>
+      </details>
+      <details>
+        <summary>Is this legal advice?</summary>
+        <div class="ans"><p>No. ClearScreen is a screening aid built from public federal and state data, not legal advice or a compliance determination. Users must confirm any potential match at the authoritative source before acting on it.</p></div>
+      </details>
+    </div>
+  </div>
+</section>
+
+<!-- DISCLAIMER (standalone, also in footer) -->
+<section id="disclaimer">
+  <div class="wrap">
+    <div class="disclaimer">
+      <b>Important:</b> ClearScreen is a screening <em>aid</em> built from public US federal and state data — it is <b>not legal advice and not a compliance determination</b>. Potential matches are candidates, not confirmations. Users must verify any potential match at the authoritative source (e.g. OFAC, OIG, SAM.gov, or the relevant state agency) before taking any action.
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div>
+      <div class="fbrand">
+        <svg class="logo" viewBox="0 0 32 32" aria-hidden="true"><path fill="#2f7fd4" d="M16 2 4 7v8c0 7 5 12 12 15 7-3 12-8 12-15V7L16 2z"/><path fill="#fff" d="m14.3 19.4-3.5-3.5 1.8-1.8 1.7 1.7 5-5 1.8 1.8-6.8 6.8z"/></svg>
+        ClearScreen
+      </div>
+      <p class="fnote">Sanctions &amp; exclusion screening API and MCP server. Screen any person or company against 12 US federal and state lists in one call.</p>
+    </div>
+    <div>
+      <h4>Product</h4>
+      <a href="#screens">What it screens</a>
+      <a href="#features">Features</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div>
+      <h4>Resources</h4>
+      <a href="https://mcpize.com/mcp/clearscreen-mcp">Marketplace listing</a>
+      <a href="https://clearscreen-mcp.mcpize.run/mcp">MCP endpoint</a>
+      <a href="/llms.txt">llms.txt</a>
+    </div>
+  </div>
+  <div class="wrap" style="display:block">
+    <div class="foot-legal">
+      <div class="disclaimer">
+        <b>Disclaimer:</b> ClearScreen is a screening aid built from public federal and state data — not legal advice or a compliance determination. Confirm potential matches at the authoritative source before acting.
+      </div>
+      &copy; 2026 ClearScreen. Data sourced from public US federal and state exclusion and sanctions lists. All trademarks belong to their respective owners.
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
