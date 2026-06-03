@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 232 48" width="232" height="48" role="img" aria-label="ClearScreen">
+  <defs>
+    <linearGradient id="csShield2" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#3a8ee0"/>
+      <stop offset="1" stop-color="#1b5fa8"/>
+    </linearGradient>
+  </defs>
+  <g transform="translate(2 4) scale(1.25)">
+    <path fill="url(#csShield2)" d="M16 1.6 3.5 6.8v7.7c0 7.3 5.2 12.6 12.5 15.9 7.3-3.3 12.5-8.6 12.5-15.9V6.8L16 1.6z"/>
+    <path fill="#ffffff" d="m14.2 20.6-4.4-4.4 2.05-2.05 2.35 2.35 6.2-6.2 2.05 2.05z"/>
+  </g>
+  <text x="56" y="32" font-family="-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif" font-size="23" font-weight="700" letter-spacing="-0.6">
+    <tspan fill="#16202e">Clear</tspan><tspan fill="#1b5fa8">Screen</tspan>
+  </text>
+</svg>
