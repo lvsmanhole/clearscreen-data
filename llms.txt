@@ -1,0 +1,49 @@
+# ClearScreen
+
+> ClearScreen is a sanctions & exclusion screening API, delivered as an MCP (Model Context Protocol) server, that screens any person or company against 12 US federal and state exclusion and sanctions lists (292,000+ records) in a single call, returning ranked candidate matches with confidence scores, source attribution, and freshness timestamps.
+
+## What it screens (12 lists, 292,000+ records)
+
+Federal (3):
+- OFAC SDN — US Treasury Specially Designated Nationals & Blocked Persons (sanctions)
+- OIG LEIE — HHS Office of Inspector General List of Excluded Individuals/Entities (healthcare exclusions)
+- SAM.gov — System for Award Management federal debarments and exclusions
+
+State Medicaid exclusion lists (9):
+- New York, Pennsylvania, Arkansas, Maryland, South Carolina, Missouri, Indiana, Mississippi, Georgia
+
+## Key features
+
+- Fuzzy name + alias matching (catches misspellings, aliases, transliterations)
+- Returns ranked candidate matches with confidence scores (not a naked yes/no)
+- Source attribution + freshness timestamp on every result (audit trail)
+- ~1 second per screen; all 12 lists checked in one call
+- Underlying data auto-refreshes daily
+- Agent-native: callable by AI agents (e.g. Claude) and apps via MCP
+
+## MCP endpoint
+
+https://clearscreen-mcp.mcpize.run/mcp
+
+Marketplace listing: https://mcpize.com/mcp/clearscreen-mcp
+
+## Tools (4)
+
+- screen_person — screen an individual by name against all 12 lists
+- screen_entity — screen a company or organization against all 12 lists
+- batch_screen — bulk-screen many names (ideal for monthly re-screening)
+- get_list_status — check each list's last-refresh timestamp and record counts
+
+## Use cases
+
+KYC/AML onboarding, vendor & supplier due diligence, hiring & healthcare credentialing, marketplace trust & safety, fintech/crypto compliance, and AI-agent workflows that must check a name before acting.
+
+## Pricing
+
+- Free: 50 screens/month
+- Pay-as-you-go: $0.07 per screen
+- Pro: $39/month (includes 2,000 screens)
+
+## Disclaimer
+
+ClearScreen is a screening aid built from public US federal and state data — it is NOT legal advice and NOT a compliance determination. Potential matches are candidates, not confirmations. Users must verify any potential match at the authoritative source (e.g. OFAC, OIG, SAM.gov, or the relevant state agency) before taking action.
