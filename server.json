@@ -4,7 +4,7 @@
   "description": "Screen any person or company against 12 US federal & state sanctions and exclusion lists (OFAC SDN, OIG LEIE, SAM.gov, and 6 state Medicaid lists) in one call. Fuzzy name + alias matching, confidence scores, source-dated results.",
   "version": "1.0.0",
   "repository": {
-    "url": "https://github.com/lvsmanhole/MCP",
+    "url": "https://github.com/lvsmanhole/clearscreen-data",
     "source": "github"
   },
   "websiteUrl": "https://lvsmanhole.github.io/clearscreen-data/",
