@@ -227,6 +227,27 @@ footer .fnote{font-size:.9rem;color:#8fa3bb;max-width:42ch}
 .foot-legal .disclaimer{margin-bottom:16px}
 .skip{position:absolute;left:-999px}
 .skip:focus{left:8px;top:8px;background:#fff;padding:8px 12px;border-radius:6px;z-index:50}
+
+/* LIVE DEMO */
+.demo-card{max-width:720px;margin:0 auto;background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+.section-soft .demo-card{background:#fff}
+.demo-form{display:flex;gap:10px;flex-wrap:wrap}
+.demo-form input{flex:1 1 260px;padding:13px 15px;border:1px solid var(--line);border-radius:8px;font-size:1rem;color:var(--ink)}
+.demo-form input:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px rgba(47,127,212,.15)}
+.demo-form .btn{flex:0 0 auto}
+.demo-try{font-size:.88rem;color:var(--muted);margin:12px 0 0}
+.chip{font:inherit;font-size:.85rem;color:var(--accent-d);background:var(--bg-tint);border:1px solid var(--line);border-radius:999px;padding:4px 11px;cursor:pointer;margin:0 4px 4px 0}
+.chip:hover{border-color:var(--accent)}
+.demo-results{margin-top:18px}
+.demo-results .empty{background:#e7f4ec;border:1px solid #b6e0c6;color:#0f7a52;padding:14px 16px;border-radius:8px;font-weight:600}
+.demo-results .head{font-weight:700;color:var(--ink);margin:0 0 10px}
+.demo-hit{display:flex;align-items:center;gap:12px;padding:12px 14px;border:1px solid var(--line);border-radius:8px;margin-bottom:8px}
+.demo-hit .meta{flex:1;min-width:0}
+.demo-hit .nm{font-weight:700;color:var(--ink)}
+.demo-hit .sub{font-size:.84rem;color:var(--muted)}
+.demo-hit .badge2{flex:none;font-weight:800;font-size:.92rem;padding:6px 11px;border-radius:8px;color:#fff;white-space:nowrap}
+.demo-note{font-size:.82rem;color:var(--muted);margin:16px 0 0;line-height:1.5}
+.demo-load{color:var(--muted);font-size:.9rem;margin-top:14px}
 </style>
 
 <!-- JSON-LD: SoftwareApplication -->
@@ -352,6 +373,7 @@ footer .fnote{font-size:.9rem;color:#8fa3bb;max-width:42ch}
       ClearScreen
     </a>
     <nav class="nav" aria-label="Primary">
+      <a href="#demo">Try it</a>
       <a href="#screens">What it screens</a>
       <a href="#features">Features</a>
       <a href="#connect">Connect</a>
@@ -371,8 +393,8 @@ footer .fnote{font-size:.9rem;color:#8fa3bb;max-width:42ch}
     <h1>Screen any name against 12 US sanctions &amp; exclusion lists in one call</h1>
     <p class="lede">ClearScreen is a compliance screening API and MCP server that checks any person or company against federal and state sanctions and exclusion lists, returning ranked, confidence-scored matches with a full audit trail.</p>
     <div class="cta-row">
-      <a class="btn btn-primary" href="https://mcpize.com/mcp/clearscreen-mcp">View on marketplace</a>
-      <a class="btn btn-ghost" href="#connect">Connect an AI agent</a>
+      <a class="btn btn-primary" href="#demo">Try a live screen</a>
+      <a class="btn btn-ghost" href="https://mcpize.com/mcp/clearscreen-mcp">View on marketplace</a>
     </div>
     <div class="endpoint">
       <span class="lbl">MCP endpoint</span>
@@ -388,6 +410,30 @@ footer .fnote{font-size:.9rem;color:#8fa3bb;max-width:42ch}
 </section>
 
 <main id="main">
+
+<!-- LIVE DEMO -->
+<section id="demo">
+  <div class="wrap">
+    <div class="section-head center">
+      <div class="kicker">Live demo</div>
+      <h2>Screen a name against the OFAC sanctions list</h2>
+      <p>Type any person or company and run a real screen against the live <strong>OFAC SDN</strong> list (19,024 records) — entirely in your browser. The full ClearScreen API checks all 12 lists (292,000+ records) in a single call.</p>
+    </div>
+    <div class="demo-card">
+      <form id="demoForm" class="demo-form" autocomplete="off">
+        <input id="demoQ" type="text" placeholder="Enter a person or company name…" aria-label="Name to screen">
+        <button type="submit" class="btn btn-primary" id="demoBtn">Screen</button>
+      </form>
+      <p class="demo-try">Try:
+        <button type="button" class="chip" data-q="Osama Bin Laden">Osama Bin Laden</button>
+        <button type="button" class="chip" data-q="Banco Nacional de Cuba">Banco Nacional de Cuba</button>
+        <button type="button" class="chip" data-q="Acme Software LLC">Acme Software LLC</button>
+      </p>
+      <div id="demoResults" class="demo-results" aria-live="polite"></div>
+      <p class="demo-note"><strong>Demo only:</strong> screens the OFAC SDN list and runs locally in your browser — not legal advice or a compliance determination; confirm any potential match at the authoritative source. The full ClearScreen API also screens OIG LEIE, SAM.gov, and 9 state Medicaid lists. <a href="#connect">Connect the full API →</a></p>
+    </div>
+  </div>
+</section>
 
 <!-- LEAD DEFINITION (AEO) -->
 <section class="section-soft">
@@ -667,6 +713,67 @@ footer .fnote{font-size:.9rem;color:#8fa3bb;max-width:42ch}
     </div>
   </div>
 </footer>
+
+<!-- LIVE DEMO: in-browser token-sort fuzzy matching over the OFAC SDN list -->
+<script>
+(function(){
+  var DATA=null, busy=false;
+  var f=document.getElementById('demoForm'), q=document.getElementById('demoQ'),
+      btn=document.getElementById('demoBtn'), out=document.getElementById('demoResults');
+  if(!f) return;
+  function norm(s){return s.toUpperCase().replace(/[^A-Z0-9 ]/g,' ').replace(/\s+/g,' ').trim();}
+  function tsort(s){return norm(s).split(' ').filter(Boolean).sort().join(' ');}
+  function lev(a,b){var m=a.length,n=b.length;if(!m)return n;if(!n)return m;
+    var prev=new Array(n+1),cur=new Array(n+1),i,j;
+    for(j=0;j<=n;j++)prev[j]=j;
+    for(i=1;i<=m;i++){cur[0]=i;var ai=a.charCodeAt(i-1);
+      for(j=1;j<=n;j++){var c=ai===b.charCodeAt(j-1)?0:1,v=prev[j]+1,d=cur[j-1]+1;
+        if(d<v)v=d; d=prev[j-1]+c; if(d<v)v=d; cur[j]=v;}
+      var t=prev;prev=cur;cur=t;}
+    return prev[n];}
+  function ratio(a,b){var ml=a.length>b.length?a.length:b.length;if(!ml)return 100;return Math.round((1-lev(a,b)/ml)*100);}
+  function load(){
+    if(DATA)return Promise.resolve(DATA);
+    out.innerHTML='<p class="demo-load">Loading the OFAC SDN list…</p>';
+    return fetch('demo-data.json').then(function(r){return r.json();}).then(function(j){
+      j.records.forEach(function(rec){rec._n=tsort(rec.n);if(rec.a)rec._a=rec.a.map(tsort);});
+      DATA=j;return j;});
+  }
+  function screen(query){
+    var qs=tsort(query); if(!qs)return []; var ql=qs.length, tol=ql*0.6+3, res=[];
+    DATA.records.forEach(function(rec){
+      var best=0,via=null,s;
+      if(Math.abs(rec._n.length-ql)<=tol){s=ratio(qs,rec._n);if(s>best){best=s;via=null;}}
+      if(rec._a)for(var k=0;k<rec._a.length;k++){if(Math.abs(rec._a[k].length-ql)<=tol){
+        s=ratio(qs,rec._a[k]);if(s>best){best=s;via=rec.a[k];}}}
+      if(best>=70)res.push({rec:rec,score:best,via:via});
+    });
+    res.sort(function(a,b){return b.score-a.score;});
+    return res.slice(0,8);
+  }
+  function color(s){return s>=90?'#c0392b':(s>=78?'#d98324':'#6b7a8c');}
+  function esc(s){return (s||'').replace(/[&<>"]/g,function(c){return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c];});}
+  function render(query,hits){
+    if(!hits.length){out.innerHTML='<div class="empty">&#10003; No matches found for &ldquo;'+esc(query)+'&rdquo; in the OFAC SDN list.</div>';return;}
+    var h='<p class="head">'+hits.length+' potential match'+(hits.length>1?'es':'')+' for &ldquo;'+esc(query)+'&rdquo;</p>';
+    hits.forEach(function(x){var r=x.rec;
+      var sub=(r.t==='e'?'Company':'Person')+(r.p?' &middot; OFAC SDN ('+esc(r.p)+' program)':' &middot; OFAC SDN')+(x.via?' &middot; matched alias: &ldquo;'+esc(x.via)+'&rdquo;':'');
+      h+='<div class="demo-hit"><div class="meta"><div class="nm">'+esc(r.n)+'</div><div class="sub">'+sub+'</div></div>'+
+         '<div class="badge2" style="background:'+color(x.score)+'">'+x.score+'% match</div></div>';});
+    out.innerHTML=h;
+  }
+  function run(query){
+    if(busy||!query.trim())return; busy=true; btn.disabled=true; var lbl=btn.textContent; btn.textContent='Screening…';
+    load().then(function(){
+      return new Promise(function(res){setTimeout(function(){render(query,screen(query));res();},20);});
+    }).catch(function(){out.innerHTML='<div class="empty" style="background:#fdecea;border-color:#f5b7b1;color:#922b21">Could not load the demo data &mdash; please try again.</div>';})
+      .then(function(){busy=false;btn.disabled=false;btn.textContent=lbl;});
+  }
+  f.addEventListener('submit',function(e){e.preventDefault();run(q.value);});
+  Array.prototype.forEach.call(document.querySelectorAll('.chip'),function(c){
+    c.addEventListener('click',function(){q.value=c.getAttribute('data-q');run(q.value);});});
+})();
+</script>
 
 </body>
 </html>
